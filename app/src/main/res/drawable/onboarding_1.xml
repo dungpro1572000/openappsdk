@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Background -->
+    <path
+        android:fillColor="#E8F5E9"
+        android:pathData="M100,100m-90,0a90,90 0,1 1,180 0a90,90 0,1 1,-180 0"/>
+
+    <!-- Welcome icon - Document with checkmark -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M60,40 L120,40 L140,60 L140,160 L60,160 Z"/>
+
+    <path
+        android:fillColor="#388E3C"
+        android:pathData="M120,40 L120,60 L140,60 Z"/>
+
+    <!-- Checkmark -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="8"
+        android:pathData="M80,100 L95,115 L125,85"/>
+
+    <!-- Lines representing text -->
+    <path
+        android:fillColor="#C8E6C9"
+        android:pathData="M75,130 L125,130 L125,138 L75,138 Z"/>
+
+    <path
+        android:fillColor="#C8E6C9"
+        android:pathData="M75,145 L110,145 L110,153 L75,153 Z"/>
+</vector>
