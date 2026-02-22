@@ -23,7 +23,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,6 +42,7 @@ import com.google.android.gms.ads.nativead.NativeAdView
 import com.dungz.our_ads.R
 import com.dungz.our_ads.manager.NativeAdManager
 import com.dungz.our_ads.state.RetryConfig
+import com.dungz.our_ads.utils.AdLogger
 
 enum class NativeAdSize { SMALL, MEDIUM }
 
@@ -52,27 +55,53 @@ fun NativeAdView(
     modifier: Modifier = Modifier,
     size: NativeAdSize = NativeAdSize.MEDIUM,
     retryConfig: RetryConfig? = null,
+    loadingPlaceholder: (@Composable () -> Unit)? = null,
     onAdLoaded: () -> Unit = {},
     onAdFailed: (String) -> Unit = {}
 ) {
-    if (!showHigher && !showNormal) return
+    // Don't show anything if both flags are false
+    if (!showHigher && !showNormal) {
+        AdLogger.debug(AdLogger.TYPE_NATIVE, "Skipping ad display: showHigher=$showHigher, showNormal=$showNormal")
+        return
+    }
 
-    var currentNativeAd by remember { mutableStateOf<NativeAd?>(null) }
-    var isLoading by remember { mutableStateOf(false) }
-    var hasFailed by remember { mutableStateOf(false) }
+    // Observe ad changes từ StateFlow để tự động cập nhật khi ad được reload
+    val adFromFlow by NativeAdManager.getAdFlow(adHigherId, adNormalId).collectAsState()
+
+    // Use key to reset states when flags change
+    var isLoading by remember(showHigher, showNormal) { mutableStateOf(false) }
+    var hasFailed by remember(showHigher, showNormal) { mutableStateOf(false) }
+
+    // Key để force recompose AndroidView khi ad thay đổi
+    var adVersion by remember { mutableIntStateOf(0) }
+
+    // Cập nhật adVersion khi có ad mới từ flow
+    LaunchedEffect(adFromFlow) {
+        if (adFromFlow != null && (showHigher || showNormal)) {
+            adVersion++
+            isLoading = false
+            onAdLoaded()
+        }
+    }
 
     LaunchedEffect(adHigherId, adNormalId, showHigher, showNormal) {
+        // Double check flags before loading
+        if (!showHigher && !showNormal) {
+            AdLogger.debug(AdLogger.TYPE_NATIVE, "Skipping ad load: both flags are false")
+            return@LaunchedEffect
+        }
+
         if (NativeAdManager.isReady(adHigherId, adNormalId)) {
-            currentNativeAd = NativeAdManager.getNativeAd(adHigherId, adNormalId)
-            if (currentNativeAd != null) onAdLoaded()
+            // Ad đã sẵn sàng, flow sẽ emit
+            onAdLoaded()
         } else {
             isLoading = true
+            hasFailed = false
             NativeAdManager.loadAd(
                 adHigherId, adNormalId, showHigher, showNormal, retryConfig,
-                onLoaded = { ad ->
-                    currentNativeAd = ad
+                onLoaded = { _ ->
+                    // Ad loaded, flow sẽ emit và trigger recompose
                     isLoading = false
-                    onAdLoaded()
                 },
                 onFailed = { error ->
                     isLoading = false
@@ -83,93 +112,108 @@ fun NativeAdView(
         }
     }
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        val height = if (size == NativeAdSize.SMALL) 80.dp else 280.dp
-        when {
-            isLoading -> Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-            currentNativeAd != null -> AndroidView(
-                modifier = Modifier.fillMaxWidth(),
-                factory = { ctx ->
-                    val layout = if (size == NativeAdSize.SMALL) {
-                        R.layout.native_ad_small
+    // Don't show anything if ad failed to load
+    if (hasFailed) {
+        AdLogger.debug(AdLogger.TYPE_NATIVE, "Ad failed to load, hiding view")
+        return
+    }
+
+    // Only show content when loading or ad is available
+    if (isLoading || adFromFlow != null) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            val height = if (size == NativeAdSize.SMALL) 80.dp else 280.dp
+            when {
+                isLoading -> {
+                    if (loadingPlaceholder != null) {
+                        loadingPlaceholder()
                     } else {
-                        R.layout.native_ad_medium
-                    }
-                    (LayoutInflater.from(ctx).inflate(layout, null) as NativeAdView).also {
-                        populateNativeAdView(currentNativeAd!!, it)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(height)
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
-            )
-            hasFailed -> Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Ad not available", color = Color.Gray)
+                adFromFlow != null -> {
+                    // Dùng key(adVersion) để force recreate AndroidView khi ad mới được load
+                    androidx.compose.runtime.key(adVersion) {
+                        AndroidView(
+                            modifier = Modifier.fillMaxWidth(),
+                            factory = { ctx ->
+                                val layout = if (size == NativeAdSize.SMALL) {
+                                    R.layout.native_ad_small
+                                } else {
+                                    R.layout.native_ad_medium
+                                }
+                                (LayoutInflater.from(ctx).inflate(layout, null) as NativeAdView).also {
+                                    populateNativeAdView(adFromFlow!!, it)
+                                }
+                            }
+                        )
+                    }
+                }
             }
-            else -> Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height)
-                    .background(Color.White)
-            )
         }
     }
 }
 
 private fun populateNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
+    // 1. Set MediaView first (required by Google)
+    adView.mediaView = adView.findViewById(R.id.ad_media)
+    nativeAd.mediaContent?.let { mediaContent ->
+        adView.mediaView?.mediaContent = mediaContent
+        adView.mediaView?.visibility = View.VISIBLE
+    }
+
+    // 2. Set headline (required)
     adView.headlineView = adView.findViewById(R.id.ad_headline)
     (adView.headlineView as? TextView)?.text = nativeAd.headline
 
+    // 3. Set body
     adView.bodyView = adView.findViewById(R.id.ad_body)
-    nativeAd.body?.let {
-        (adView.bodyView as? TextView)?.apply {
-            text = it
-            visibility = View.VISIBLE
-        }
+    (adView.bodyView as? TextView)?.apply {
+        text = nativeAd.body ?: ""
+        visibility = if (nativeAd.body != null) View.VISIBLE else View.GONE
     }
 
+    // 4. Set call to action (important for clicks)
     adView.callToActionView = adView.findViewById(R.id.ad_call_to_action)
-    nativeAd.callToAction?.let {
-        (adView.callToActionView as? Button)?.apply {
-            text = it
-            visibility = View.VISIBLE
-        }
+    (adView.callToActionView as? Button)?.apply {
+        text = nativeAd.callToAction ?: "Install"
+        visibility = View.VISIBLE
     }
 
+    // 5. Set icon
     adView.iconView = adView.findViewById(R.id.ad_app_icon)
-    nativeAd.icon?.let {
-        (adView.iconView as? ImageView)?.setImageDrawable(it.drawable)
+    (adView.iconView as? ImageView)?.apply {
+        nativeAd.icon?.drawable?.let { setImageDrawable(it) }
+        visibility = if (nativeAd.icon != null) View.VISIBLE else View.INVISIBLE
     }
 
+    // 6. Set star rating
     adView.starRatingView = adView.findViewById(R.id.ad_stars)
-    nativeAd.starRating?.let {
-        (adView.starRatingView as? RatingBar)?.rating = it.toFloat()
+    (adView.starRatingView as? RatingBar)?.apply {
+        rating = nativeAd.starRating?.toFloat() ?: 0f
+        visibility = if (nativeAd.starRating != null) View.VISIBLE else View.GONE
     }
 
-    adView.mediaView = adView.findViewById(R.id.ad_media)
-    adView.mediaView?.mediaContent = nativeAd.mediaContent
-
+    // 7. Set advertiser
     adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
-    nativeAd.advertiser?.let {
-        (adView.advertiserView as? TextView)?.text = it
+    (adView.advertiserView as? TextView)?.apply {
+        text = nativeAd.advertiser ?: ""
+        visibility = if (nativeAd.advertiser != null) View.VISIBLE else View.GONE
     }
 
+    // 8. Register the native ad (must be last)
     adView.setNativeAd(nativeAd)
 }
 

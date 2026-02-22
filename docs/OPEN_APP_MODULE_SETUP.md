@@ -1,10 +1,27 @@
-# 📱 Open App Module Setup Guide
+# Open App Module Setup Guide
 
-> **Version:** 1.0.0 | **Last Updated:** January 2025 | **Min SDK:** 24 | **Target SDK:** 34
+> **Version:** 1.0.0 | **Last Updated:** February 2025 | **Min SDK:** 24 | **Target SDK:** 36
 
 ---
 
-## 📋 Checklist
+## Table of Contents
+
+- [Checklist](#-checklist)
+- [Module Structure](#1%EF%B8%8F⃣-module-structure)
+- [Build Configuration](#2%EF%B8%8F⃣-project-level-buildgradlekts)
+- [Firebase Setup](#4%EF%B8%8F⃣-firebase-setup)
+- [Language Model](#5%EF%B8%8F⃣-languagekt-model)
+- [UserPreferences](#6%EF%B8%8F⃣-userpreferenceskt-datastore)
+- [LanguageManager](#7%EF%B8%8F⃣-languagemanagerkt)
+- [Navigation](#8%EF%B8%8F⃣-openappnavigationkt)
+- [Components](#9%EF%B8%8F⃣-components)
+- [Screens](#🔟-splashscreenkt)
+- [Flow Summary](#-flow-summary)
+- [TODO Checklist](#%EF%B8%8F-todo-checklist)
+
+---
+
+## Checklist
 
 ### Setup Phase
 - [ ] Tạo module mới `open-app` trong project

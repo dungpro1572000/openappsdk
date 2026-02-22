@@ -1,10 +1,30 @@
-# 📱 Ads Module/Library Setup Guide
+# Ads Module/Library Setup Guide
 
-> **Version:** 3.0.0 | **Last Updated:** January 2025 | **Min SDK:** 21 | **Target SDK:** 34
+> **Version:** 3.0.0 | **Last Updated:** February 2025 | **Min SDK:** 24 | **Target SDK:** 36
 
 ---
 
-## 📋 Checklist
+## Table of Contents
+
+- [Overview](#-key-features)
+- [Checklist](#-checklist)
+- [Module Structure](#1%EF%B8%8F⃣-module-structure)
+- [Build Configuration](#2%EF%B8%8F⃣-buildgradlekts)
+- [AdsInitializer](#3%EF%B8%8F⃣-adsinitializerkt)
+- [AdState](#4%EF%B8%8F⃣-adstatekt)
+- [InterstitialAdManager](#5%EF%B8%8F⃣-interstitialadmanagerkt)
+- [RewardedAdManager](#6%EF%B8%8F⃣-rewardedadmanagerkt)
+- [BannerAdManager](#7%EF%B8%8F⃣-banneradmanagerkt)
+- [NativeAdManager](#8%EF%B8%8F⃣-nativeadmanagerkt-với-retry-logic)
+- [Composables](#9%EF%B8%8F⃣-banneradviewkt-composable)
+- [XML Layouts](#1%EF%B8%8F⃣1%EF%B8%8F⃣-xml-layouts)
+- [API Summary](#-api-summary)
+- [Usage Guide](#-hướng-dẫn-sử-dụng-chi-tiết)
+- [Best Practices](#-best-practices)
+
+---
+
+## Checklist
 
 ### Setup Phase
 - [ ] Tạo module mới `ads` trong project

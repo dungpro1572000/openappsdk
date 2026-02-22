@@ -18,7 +18,8 @@ data class AdHolder<T>(
     val ad: T?,
     val state: AdState = AdState.NotLoaded,
     val isHigherAd: Boolean = false,
-    val loadedAt: Long = 0L
+    val loadedAt: Long = 0L,
+    val adUnitId: String = ""
 )
 
 /**

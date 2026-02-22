@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.dungz.ads_open.navigation.OpenAppNavigation
-import com.dungz.ads_open.ui.theme.AdsOpenTheme
+import com.dungz.openappsdk.navigation.OpenAppNavigation
+import com.dungz.openappsdk.ui.theme.AdsOpenTheme
 
 /**
  * SplashActivity - Activity launcher của app

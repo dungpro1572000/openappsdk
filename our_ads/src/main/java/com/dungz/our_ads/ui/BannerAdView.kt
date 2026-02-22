@@ -22,6 +22,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.dungz.our_ads.manager.BannerAdManager
+import com.dungz.our_ads.utils.AdLogger
 
 @Composable
 fun BannerAdView(
@@ -31,16 +32,28 @@ fun BannerAdView(
     showNormal: Boolean,
     modifier: Modifier = Modifier,
     adSize: AdSize = AdSize.BANNER,
+    loadingPlaceholder: (@Composable () -> Unit)? = null,
     onAdLoaded: () -> Unit = {},
     onAdFailed: (String) -> Unit = {}
 ) {
-    if (!showHigher && !showNormal) return
+    // Don't show anything if both flags are false
+    if (!showHigher && !showNormal) {
+        AdLogger.debug(AdLogger.TYPE_BANNER, "Skipping ad display: showHigher=$showHigher, showNormal=$showNormal")
+        return
+    }
 
-    var currentAdView by remember { mutableStateOf<AdView?>(null) }
-    var isLoading by remember { mutableStateOf(false) }
-    var hasFailed by remember { mutableStateOf(false) }
+    // Use key to reset states when flags change
+    var currentAdView by remember(showHigher, showNormal) { mutableStateOf<AdView?>(null) }
+    var isLoading by remember(showHigher, showNormal) { mutableStateOf(false) }
+    var hasFailed by remember(showHigher, showNormal) { mutableStateOf(false) }
 
     LaunchedEffect(adHigherId, adNormalId, showHigher, showNormal) {
+        // Double check flags before loading
+        if (!showHigher && !showNormal) {
+            AdLogger.debug(AdLogger.TYPE_BANNER, "Skipping ad load: both flags are false")
+            return@LaunchedEffect
+        }
+
         if (BannerAdManager.isReady(adHigherId, adNormalId)) {
             currentAdView = BannerAdManager.getAdView(adHigherId, adNormalId)
             if (currentAdView != null) onAdLoaded()
@@ -62,19 +75,33 @@ fun BannerAdView(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(adSize.height.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        when {
-            isLoading -> CircularProgressIndicator()
-            currentAdView != null -> AndroidView(
-                modifier = Modifier.fillMaxWidth(),
-                factory = { currentAdView!! }
-            )
-            else -> {}
+    // Don't show anything if ad failed to load
+    if (hasFailed) {
+        AdLogger.debug(AdLogger.TYPE_BANNER, "Ad failed to load, hiding view")
+        return
+    }
+
+    // Only show content when loading or ad is available
+    if (isLoading || currentAdView != null) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(adSize.height.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                isLoading -> {
+                    if (loadingPlaceholder != null) {
+                        loadingPlaceholder()
+                    } else {
+                        CircularProgressIndicator()
+                    }
+                }
+                currentAdView != null -> AndroidView(
+                    modifier = Modifier.fillMaxWidth(),
+                    factory = { currentAdView!! }
+                )
+            }
         }
     }
 }

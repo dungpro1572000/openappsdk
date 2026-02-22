@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "AdsOpen"
 include(":app")
 include(":our_ads")
+include(":openappsdk")

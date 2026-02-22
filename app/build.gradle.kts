@@ -39,6 +39,49 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+    flavorDimensions += "version"
+
+    // Test Ad Unit IDs
+    val TEST_NATIVE_ID = "ca-app-pub-3940256099942544/2247696110"
+    val TEST_INTER_ID = "ca-app-pub-3940256099942544/1033173712"
+
+    productFlavors {
+        create("appDev") {
+            dimension = "version"
+            buildConfigField("Boolean", "IS_DEV", "true")
+            // Native Ads - Language screens
+            buildConfigField("String", "ADS_LANG_001_HIGH", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_LANG_001_NORMAL", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_LANG_002_HIGH", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_LANG_002_NORMAL", "\"$TEST_NATIVE_ID\"")
+            // Native Ads - Onboarding screens
+            buildConfigField("String", "ADS_ONB_001_HIGH", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_ONB_001_NORMAL", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_ONB_002_HIGH", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_ONB_002_NORMAL", "\"$TEST_NATIVE_ID\"")
+            // Interstitial Ads - PrepareData screen
+            buildConfigField("String", "ADS_INTER_001_HIGH", "\"$TEST_INTER_ID\"")
+            buildConfigField("String", "ADS_INTER_001_NORMAL", "\"$TEST_INTER_ID\"")
+        }
+        create("appRelease") {
+            dimension = "version"
+            buildConfigField("Boolean", "IS_DEV", "false")
+            // Native Ads - Language screens (TODO: Replace with real ad unit IDs)
+            buildConfigField("String", "ADS_LANG_001_HIGH", "\"ca-app-pub-xxx/lang001high\"")
+            buildConfigField("String", "ADS_LANG_001_NORMAL", "\"ca-app-pub-xxx/lang001normal\"")
+            buildConfigField("String", "ADS_LANG_002_HIGH", "\"ca-app-pub-xxx/lang002high\"")
+            buildConfigField("String", "ADS_LANG_002_NORMAL", "\"ca-app-pub-xxx/lang002normal\"")
+            // Native Ads - Onboarding screens (TODO: Replace with real ad unit IDs)
+            buildConfigField("String", "ADS_ONB_001_HIGH", "\"ca-app-pub-xxx/onb001high\"")
+            buildConfigField("String", "ADS_ONB_001_NORMAL", "\"ca-app-pub-xxx/onb001normal\"")
+            buildConfigField("String", "ADS_ONB_002_HIGH", "\"ca-app-pub-xxx/onb002high\"")
+            buildConfigField("String", "ADS_ONB_002_NORMAL", "\"ca-app-pub-xxx/onb002normal\"")
+            // Interstitial Ads - PrepareData screen (TODO: Replace with real ad unit IDs)
+            buildConfigField("String", "ADS_INTER_001_HIGH", "\"ca-app-pub-xxx/inter001high\"")
+            buildConfigField("String", "ADS_INTER_001_NORMAL", "\"ca-app-pub-xxx/inter001normal\"")
+        }
     }
 }
 
@@ -55,11 +98,9 @@ dependencies {
     // Navigation3 style - using custom implementation with AnimatedContent + Serialization
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+
+    // Ads module
+    implementation(project(":our_ads"))
+    implementation(project(":openappsdk"))
 }
