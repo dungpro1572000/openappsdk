@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PrepareDataScreen(
+    content: (@Composable () -> Unit)? = null,
     onNavigateToMain: () -> Unit
 ) {
     val context = LocalContext.current
@@ -114,7 +115,7 @@ fun PrepareDataScreen(
         showAdAndNavigate()
     }
 
-    PrepareDataContent()
+    if (content != null) content() else PrepareDataContent()
 }
 
 @Composable

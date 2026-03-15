@@ -31,65 +31,71 @@ import com.dungz.our_ads.ui.NativeAdView
 
 @Composable
 fun OnBoarding2Screen(
+    content: (@Composable () -> Unit)? = null,
     onStart: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         // Top content (60% height)
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.6f)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            // Image
-            Image(
-                painter = painterResource(id = R.drawable.onboarding_2),
-                contentDescription = "Onboarding 2",
-                modifier = Modifier.size(200.dp)
-            )
+            if (content != null) {
+                content()
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.onboarding_2),
+                        contentDescription = "Onboarding 2",
+                        modifier = Modifier.size(200.dp)
+                    )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-            // Title
-            Text(
-                text = "Ready to Begin?",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
+                    Text(
+                        text = "Ready to Begin?",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            // Description
-            Text(
-                text = "You're all set! Tap Start to begin your journey with us.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
+                    Text(
+                        text = "You're all set! Tap Start to begin your journey with us.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-            // Start button
-            Button(
-                onClick = onStart,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = "Start",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                    Button(
+                        onClick = onStart,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Start",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
 

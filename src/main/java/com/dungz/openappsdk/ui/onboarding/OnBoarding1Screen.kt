@@ -32,6 +32,7 @@ import com.dungz.our_ads.ui.NativeAdView
 
 @Composable
 fun OnBoarding1Screen(
+    content: (@Composable () -> Unit)? = null,
     onNext: () -> Unit
 ) {
     // Load ads_onb_002 when entering this screen (for Onboarding2)
@@ -48,61 +49,66 @@ fun OnBoarding1Screen(
         modifier = Modifier.fillMaxSize()
     ) {
         // Top content (60% height)
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.6f)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            // Image
-            Image(
-                painter = painterResource(
-                    id = OpenAppConfig.getOnboarding1Config().img ?: R.drawable.onboarding_1
-                ),
-                contentDescription = "Onboarding 1",
-                modifier = Modifier.size(200.dp)
-            )
+            if (content != null) {
+                content()
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(
+                            id = OpenAppConfig.getOnboarding1Config().img ?: R.drawable.onboarding_1
+                        ),
+                        contentDescription = "Onboarding 1",
+                        modifier = Modifier.size(200.dp)
+                    )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-            // Title
-            OpenAppConfig.getOnboarding1Config().title?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            }
+                    OpenAppConfig.getOnboarding1Config().title?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            // Description
-            OpenAppConfig.getOnboarding2Config().subTitle?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
+                    OpenAppConfig.getOnboarding2Config().subTitle?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-            Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-            // Next button
-            Button(
-                onClick = onNext,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(
-                    text = "Next",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    Button(
+                        onClick = onNext,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(
+                            text = "Next",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
             }
         }
 

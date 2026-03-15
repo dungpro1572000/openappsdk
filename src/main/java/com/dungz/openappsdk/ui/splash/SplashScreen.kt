@@ -34,6 +34,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
+    content: (@Composable () -> Unit)? = null,
     onNavigateToMain: () -> Unit,
     onNavigateToLanguage1: () -> Unit
 ) {
@@ -71,7 +72,7 @@ fun SplashScreen(
         }
     }
 
-    SplashContent()
+    if (content != null) content() else SplashContent()
 }
 
 @Composable

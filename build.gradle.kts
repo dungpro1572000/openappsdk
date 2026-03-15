@@ -57,5 +57,5 @@ dependencies {
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    implementation(project(":our_ads"))
+    implementation(files("libs/our_ads-release.aar"))
 }

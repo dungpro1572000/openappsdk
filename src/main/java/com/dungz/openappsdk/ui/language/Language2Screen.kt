@@ -1,6 +1,7 @@
 package com.dungz.openappsdk.ui.language
 
 import android.app.Activity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.dungz.openappsdk.OpenAppConfig
 import com.dungz.openappsdk.data.LanguageManager
 import com.dungz.openappsdk.data.UserPreferences
+import com.dungz.openappsdk.model.Language
 import com.dungz.openappsdk.model.LanguageList
 import com.dungz.openappsdk.ui.components.LanguageItem
 import com.dungz.openappsdk.ui.components.NativeAdMediumPlaceholder
@@ -47,6 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Language2Screen(
     initialSelectedCode: String,
+    languageItem: (@Composable (language: Language, isSelected: Boolean) -> Unit)? = null,
     onSaveAndContinue: () -> Unit
 ) {
     val context = LocalContext.current
@@ -136,12 +141,23 @@ fun Language2Screen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(LanguageList.languages) { language ->
-                        LanguageItem(
-                            language = language,
-                            isSelected = language.code == selectedCode,
-                            onClick = { selectedCode = language.code },
-                            showHandPointer = false
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { selectedCode = language.code }
+                        ) {
+                            if (languageItem != null) {
+                                languageItem(language, language.code == selectedCode)
+                            } else {
+                                LanguageItem(
+                                    language = language,
+                                    isSelected = language.code == selectedCode,
+                                    onClick = { selectedCode = language.code },
+                                    showHandPointer = false
+                                )
+                            }
+                        }
                     }
                 }
             }

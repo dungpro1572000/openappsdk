@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.dungz.openappsdk.model.Language
 import com.dungz.openappsdk.ui.language.Language1Screen
 import com.dungz.openappsdk.ui.language.Language2Screen
 import com.dungz.openappsdk.ui.onboarding.OnBoarding1Screen
@@ -119,6 +120,11 @@ fun rememberNavBackStack(initialRoute: OpenAppRoute): NavBackStack {
 
 @Composable
 fun OpenAppNavigation(
+    splashContent: (@Composable () -> Unit)? = null,
+    languageItem: (@Composable (language: Language, isSelected: Boolean) -> Unit)? = null,
+    onBoarding1Content: (@Composable () -> Unit)? = null,
+    onBoarding2Content: (@Composable () -> Unit)? = null,
+    prepareDataContent: (@Composable () -> Unit)? = null,
     onNavigateToMain: () -> Unit
 ) {
     val backStack = rememberNavBackStack(OpenAppRoute.Splash)
@@ -156,6 +162,7 @@ fun OpenAppNavigation(
         when (route) {
             is OpenAppRoute.Splash -> {
                 SplashScreen(
+                    content = splashContent,
                     onNavigateToMain = onNavigateToMain,
                     onNavigateToLanguage1 = {
                         backStack.navigateAndClear(OpenAppRoute.Language1)
@@ -165,6 +172,7 @@ fun OpenAppNavigation(
 
             is OpenAppRoute.Language1 -> {
                 Language1Screen(
+                    languageItem = languageItem,
                     onLanguageSelected = { languageCode ->
                         backStack.navigate(OpenAppRoute.Language2(languageCode))
                     }
@@ -174,6 +182,7 @@ fun OpenAppNavigation(
             is OpenAppRoute.Language2 -> {
                 Language2Screen(
                     initialSelectedCode = route.selectedCode,
+                    languageItem = languageItem,
                     onSaveAndContinue = {
                         backStack.navigateAndClear(OpenAppRoute.OnBoarding1)
                     }
@@ -182,6 +191,7 @@ fun OpenAppNavigation(
 
             is OpenAppRoute.OnBoarding1 -> {
                 OnBoarding1Screen(
+                    content = onBoarding1Content,
                     onNext = {
                         backStack.navigate(OpenAppRoute.OnBoarding2)
                     }
@@ -190,6 +200,7 @@ fun OpenAppNavigation(
 
             is OpenAppRoute.OnBoarding2 -> {
                 OnBoarding2Screen(
+                    content = onBoarding2Content,
                     onStart = {
                         backStack.navigateAndClear(OpenAppRoute.PrepareData)
                     }
@@ -198,6 +209,7 @@ fun OpenAppNavigation(
 
             is OpenAppRoute.PrepareData -> {
                 PrepareDataScreen(
+                    content = prepareDataContent,
                     onNavigateToMain = onNavigateToMain
                 )
             }

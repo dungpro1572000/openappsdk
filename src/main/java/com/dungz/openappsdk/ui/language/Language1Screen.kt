@@ -1,5 +1,6 @@
 package com.dungz.openappsdk.ui.language
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,13 +24,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dungz.openappsdk.OpenAppConfig
+import com.dungz.openappsdk.model.Language
 import com.dungz.openappsdk.model.LanguageList
 import com.dungz.openappsdk.ui.components.LanguageItem
 import com.dungz.openappsdk.ui.components.NativeAdMediumPlaceholder
@@ -40,6 +44,7 @@ import com.dungz.our_ads.ui.NativeAdView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Language1Screen(
+    languageItem: (@Composable (language: Language, isSelected: Boolean) -> Unit)? = null,
     onLanguageSelected: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -112,12 +117,23 @@ fun Language1Screen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     itemsIndexed(LanguageList.languages) { index, language ->
-                        LanguageItem(
-                            language = language,
-                            isSelected = false,
-                            onClick = { onLanguageSelected(language.code) },
-                            showHandPointer = index == 1
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { onLanguageSelected(language.code) }
+                        ) {
+                            if (languageItem != null) {
+                                languageItem(language, false)
+                            } else {
+                                LanguageItem(
+                                    language = language,
+                                    isSelected = false,
+                                    onClick = { onLanguageSelected(language.code) },
+                                    showHandPointer = index == 1
+                                )
+                            }
+                        }
                     }
                 }
             }
