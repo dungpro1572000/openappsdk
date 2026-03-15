@@ -1,17 +1,17 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
+    id("com.android.library") version "8.7.3"
+    id("org.jetbrains.kotlin.android") version "2.0.21"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
+    id("maven-publish")
 }
 
 android {
     namespace = "com.dungz.openappsdk"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -25,37 +25,55 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    // Core
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     // Compose
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.activity.compose)
+    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose:1.9.3")
 
     // Serialization
-    implementation(libs.kotlinx.serialization.json)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
     // DataStore
-    implementation(libs.androidx.datastore.preferences)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
-    implementation(files("libs/our_ads-release.aar"))
+    // our_ads via JitPack
+    implementation("com.github.dungpro1572000:our_ads:1.0.0")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.dungpro1572000"
+                artifactId = "openappsdk"
+                version = "1.0.0"
+            }
+        }
+    }
 }
