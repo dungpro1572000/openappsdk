@@ -1,0 +1,3 @@
+[submodule "openappsdk"]
+	path = openappsdk
+	url = https://github.com/dungpro1572000/openappsdk.git

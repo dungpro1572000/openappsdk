@@ -52,35 +52,29 @@ android {
             dimension = "version"
             buildConfigField("Boolean", "IS_DEV", "true")
             // Native Ads - Language screens
-            buildConfigField("String", "ADS_LANG_001_HIGH", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_LANG_001_NORMAL", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_LANG_002_HIGH", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_LANG_002_NORMAL", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_LANG_001", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_LANG_002", "\"$TEST_NATIVE_ID\"")
             // Native Ads - Onboarding screens
-            buildConfigField("String", "ADS_ONB_001_HIGH", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_ONB_001_NORMAL", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_ONB_002_HIGH", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_ONB_002_NORMAL", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_ONB_001", "\"$TEST_NATIVE_ID\"")
+            buildConfigField("String", "ADS_ONB_002", "\"$TEST_NATIVE_ID\"")
             // Interstitial Ads - PrepareData screen
-            buildConfigField("String", "ADS_INTER_001_HIGH", "\"$TEST_INTER_ID\"")
-            buildConfigField("String", "ADS_INTER_001_NORMAL", "\"$TEST_INTER_ID\"")
+            buildConfigField("String", "ADS_INTER_001", "\"$TEST_INTER_ID\"")
+            // Native Ads - NativeFullScreen
+            buildConfigField("String", "ADS_NATIVE_FULL", "\"$TEST_NATIVE_ID\"")
         }
         create("appRelease") {
             dimension = "version"
             buildConfigField("Boolean", "IS_DEV", "false")
             // Native Ads - Language screens (TODO: Replace with real ad unit IDs)
-            buildConfigField("String", "ADS_LANG_001_HIGH", "\"ca-app-pub-xxx/lang001high\"")
-            buildConfigField("String", "ADS_LANG_001_NORMAL", "\"ca-app-pub-xxx/lang001normal\"")
-            buildConfigField("String", "ADS_LANG_002_HIGH", "\"ca-app-pub-xxx/lang002high\"")
-            buildConfigField("String", "ADS_LANG_002_NORMAL", "\"ca-app-pub-xxx/lang002normal\"")
+            buildConfigField("String", "ADS_LANG_001", "\"ca-app-pub-xxx/lang001\"")
+            buildConfigField("String", "ADS_LANG_002", "\"ca-app-pub-xxx/lang002\"")
             // Native Ads - Onboarding screens (TODO: Replace with real ad unit IDs)
-            buildConfigField("String", "ADS_ONB_001_HIGH", "\"ca-app-pub-xxx/onb001high\"")
-            buildConfigField("String", "ADS_ONB_001_NORMAL", "\"ca-app-pub-xxx/onb001normal\"")
-            buildConfigField("String", "ADS_ONB_002_HIGH", "\"ca-app-pub-xxx/onb002high\"")
-            buildConfigField("String", "ADS_ONB_002_NORMAL", "\"ca-app-pub-xxx/onb002normal\"")
+            buildConfigField("String", "ADS_ONB_001", "\"ca-app-pub-xxx/onb001\"")
+            buildConfigField("String", "ADS_ONB_002", "\"ca-app-pub-xxx/onb002\"")
             // Interstitial Ads - PrepareData screen (TODO: Replace with real ad unit IDs)
-            buildConfigField("String", "ADS_INTER_001_HIGH", "\"ca-app-pub-xxx/inter001high\"")
-            buildConfigField("String", "ADS_INTER_001_NORMAL", "\"ca-app-pub-xxx/inter001normal\"")
+            buildConfigField("String", "ADS_INTER_001", "\"ca-app-pub-xxx/inter001\"")
+            // Native Ads - NativeFullScreen (TODO: Replace with real ad unit IDs)
+            buildConfigField("String", "ADS_NATIVE_FULL", "\"ca-app-pub-xxx/nativefull\"")
         }
     }
 }
@@ -99,8 +93,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
 
-
-    // Ads module
-    implementation(project(":our_ads"))
     implementation(project(":openappsdk"))
+    implementation(libs.our.ads)
 }

@@ -10,6 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.dungz.openappsdk.navigation.OpenAppNavigation
+import com.dungz.openappsdk.navigation.OpenAppRoute
+import com.dungz.openappsdk.remotedata.RemoteDataObject
 import com.dungz.openappsdk.ui.theme.AdsOpenTheme
 
 /**
@@ -36,6 +38,10 @@ class SplashActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     OpenAppNavigation(
+                        nativeFullScreenRoute = OpenAppRoute.NativeFullScreen(
+                            adId = BuildConfig.ADS_NATIVE_FULL,
+                            showAd = RemoteDataObject.showAdNativeFull
+                        ),
                         onNavigateToMain = {
                             navigateToMainActivity()
                         }
