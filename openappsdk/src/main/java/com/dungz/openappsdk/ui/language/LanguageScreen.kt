@@ -1,5 +1,6 @@
 package com.dungz.openappsdk.ui.language
 
+import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,62 +12,84 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dungz.openappsdk.OpenAppConfig
+import com.dungz.openappsdk.data.LanguageManager
+import com.dungz.openappsdk.data.UserPreferences
 import com.dungz.openappsdk.model.Language
 import com.dungz.openappsdk.model.LanguageList
 import com.dungz.openappsdk.ui.components.LanguageItem
-import android.app.Activity
-import java.lang.ref.WeakReference
-import com.dungz.openappsdk.ui.components.NativeAdMediumPlaceholder
 import com.dungz.openappsdk.ui.configUI.LanguageConfigUI
-import com.dungz.our_ads.controller.NativeAdsController
-import com.dungz.our_ads.state.NativeAdState
-import com.dungz.our_ads.ui.MediumNativeContainerAdView
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.ui.graphics.Color
+import com.dungz.our_ads.controller.InterAdsController
+import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Language1Screen(
+fun LanguageScreen(
     languageItem: (@Composable (language: Language, isSelected: Boolean) -> Unit)? = null,
-    onLanguageSelected: (String) -> Unit
+    onNavigateToOnBoarding1: () -> Unit
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
-    val config = OpenAppConfig.getLanguage1Config()
-    val shouldShowAd = config.showAd
+    val userPreferences = remember { UserPreferences.getInstance(context) }
+    val scope = rememberCoroutineScope()
+    val config = OpenAppConfig.getLanguageConfig()
 
-    // Preload native ad for Language2 screen
-    LaunchedEffect(Unit) {
-        val lang2Config = OpenAppConfig.getLanguage2Config()
-        if (lang2Config.showAd && lang2Config.adId.isNotEmpty()) {
-            activity?.let { act ->
-                NativeAdsController.preloadAds(
-                    activity = WeakReference(act),
-                    adUnitId = lang2Config.adId,
-                    preloadKey = "native_lang_002"
-                )
+    var selectedCode by remember { mutableStateOf("") }
+    var isSaving by remember { mutableStateOf(false) }
+
+    val onSave: () -> Unit = {
+        if (selectedCode.isNotEmpty() && !isSaving) {
+            isSaving = true
+            scope.launch {
+                // 1. Save language preference
+                userPreferences.setSelectedLanguage(selectedCode)
+
+                // 2. Apply language
+                activity?.let {
+                    LanguageManager.applyLanguageAndRecreate(it, selectedCode)
+                }
+
+                // 3. Invoke config callback
+                config.onLanguageSelected?.invoke(selectedCode)
+
+                // 4. Try show splash interstitial
+                activity?.let { act ->
+                    if (InterAdsController.listAds[OpenAppConfig.getSplashConfig().idInter] != null) {
+                        InterAdsController.showAds(
+                            activity = WeakReference(act),
+                            adUnitId = OpenAppConfig.getSplashConfig().idInter,
+                            onShowSuccess = { onNavigateToOnBoarding1() },
+                            onShowFailed = { onNavigateToOnBoarding1() }
+                        )
+                    } else {
+                        onNavigateToOnBoarding1()
+                    }
+                } ?: run {
+                    onNavigateToOnBoarding1()
+                }
             }
         }
     }
@@ -78,11 +101,11 @@ fun Language1Screen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (LanguageConfigUI.title1Compose != null) {
-                        LanguageConfigUI.title1Compose!!()
+                    if (LanguageConfigUI.titleCompose != null) {
+                        LanguageConfigUI.titleCompose!!()
                     } else {
                         Text(
-                            text = LanguageConfigUI.title1Text,
+                            text = LanguageConfigUI.titleText,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -91,12 +114,16 @@ fun Language1Screen(
                     TopAppBarDefaults.topAppBarColors(containerColor = LanguageConfigUI.appBarBackgroundColor)
                 else TopAppBarDefaults.topAppBarColors(),
                 actions = {
-                    Button(
-                        onClick = {},
-                        enabled = false,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Text(LanguageConfigUI.saveButtonText)
+                    if (LanguageConfigUI.saveButtonCompose != null) {
+                        LanguageConfigUI.saveButtonCompose!!(selectedCode, onSave)
+                    } else {
+                        Button(
+                            onClick = onSave,
+                            enabled = selectedCode.isNotEmpty() && !isSaving,
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(LanguageConfigUI.saveButtonText)
+                        }
                     }
                 }
             )
@@ -107,7 +134,6 @@ fun Language1Screen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Language list - takes remaining space
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,46 +154,28 @@ fun Language1Screen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Language list
                 LazyColumn(
                     contentPadding = PaddingValues(vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    itemsIndexed(LanguageList.languages) { index, language ->
+                    items(LanguageList.languages) { language ->
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .clickable { onLanguageSelected(language.code) }
+                                .clickable { selectedCode = language.code }
                         ) {
                             if (languageItem != null) {
-                                languageItem(language, false)
+                                languageItem(language, language.code == selectedCode)
                             } else {
                                 LanguageItem(
                                     language = language,
-                                    isSelected = false,
-                                    onClick = { onLanguageSelected(language.code) },
-                                    showHandPointer = index == 1
+                                    isSelected = language.code == selectedCode,
+                                    onClick = { selectedCode = language.code },
+                                    showHandPointer = false
                                 )
                             }
                         }
-                    }
-                }
-            }
-
-            // Native Ad area
-            if (shouldShowAd) {
-                val nativeState = NativeAdsController.listAds["native_lang_001"]
-                if (nativeState !is NativeAdState.Failed) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MediumNativeContainerAdView(
-                            nativeAdState = nativeState ?: NativeAdState.Loading,
-                            nativeLayout = R.layout.native_ad_medium,
-                            shimmerAds = { NativeAdMediumPlaceholder() }
-                        )
                     }
                 }
             }
@@ -177,10 +185,10 @@ fun Language1Screen(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun Language1ScreenPreview() {
+private fun LanguageScreenPreview() {
     MaterialTheme {
-        Language1Screen(
-            onLanguageSelected = {}
+        LanguageScreen(
+            onNavigateToOnBoarding1 = {}
         )
     }
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Background -->
+    <path
+        android:fillColor="#E8F5E9"
+        android:pathData="M100,100m-90,0a90,90 0,1 1,180 0a90,90 0,1 1,-180 0"/>
+
+    <!-- Checkmark circle -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M100,100m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0"/>
+
+    <!-- Checkmark -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="6"
+        android:strokeColor="#FFFFFF"
+        android:pathData="M75,100 L95,120 L130,80"/>
+
+    <!-- Sparkles -->
+    <path
+        android:fillColor="#81C784"
+        android:pathData="M40,50 L42,55 L47,55 L43,58 L45,63 L40,60 L35,63 L37,58 L33,55 L38,55 Z"/>
+
+    <path
+        android:fillColor="#81C784"
+        android:pathData="M160,60 L162,65 L167,65 L163,68 L165,73 L160,70 L155,73 L157,68 L153,65 L158,65 Z"/>
+
+    <path
+        android:fillColor="#81C784"
+        android:pathData="M155,140 L157,145 L162,145 L158,148 L160,153 L155,150 L150,153 L152,148 L148,145 L153,145 Z"/>
+
+    <path
+        android:fillColor="#81C784"
+        android:pathData="M45,135 L47,140 L52,140 L48,143 L50,148 L45,145 L40,148 L42,143 L38,140 L43,140 Z"/>
+</vector>

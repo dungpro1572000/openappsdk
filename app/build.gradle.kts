@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -34,9 +35,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -46,36 +44,39 @@ android {
     // Test Ad Unit IDs
     val TEST_NATIVE_ID = "ca-app-pub-3940256099942544/2247696110"
     val TEST_INTER_ID = "ca-app-pub-3940256099942544/1033173712"
+    val TEST_BANNER_ID = "ca-app-pub-3940256099942544/9214589741"
 
     productFlavors {
         create("appDev") {
             dimension = "version"
             buildConfigField("Boolean", "IS_DEV", "true")
-            // Native Ads - Language screens
-            buildConfigField("String", "ADS_LANG_001", "\"$TEST_NATIVE_ID\"")
-            buildConfigField("String", "ADS_LANG_002", "\"$TEST_NATIVE_ID\"")
+            // Splash Ads
+            buildConfigField("String", "ADS_SPL_BANNER", "\"$TEST_BANNER_ID\"")
+            buildConfigField("String", "ADS_SPL_INTER", "\"$TEST_INTER_ID\"")
             // Native Ads - Onboarding screens
             buildConfigField("String", "ADS_ONB_001", "\"$TEST_NATIVE_ID\"")
             buildConfigField("String", "ADS_ONB_002", "\"$TEST_NATIVE_ID\"")
-            // Interstitial Ads - PrepareData screen
-            buildConfigField("String", "ADS_INTER_001", "\"$TEST_INTER_ID\"")
-            // Native Ads - NativeFullScreen
-            buildConfigField("String", "ADS_NATIVE_FULL", "\"$TEST_NATIVE_ID\"")
+            // Native Ads - PrepareData screen
+            buildConfigField("String", "ADS_PREPARE_NATIVE", "\"$TEST_NATIVE_ID\"")
         }
         create("appRelease") {
             dimension = "version"
             buildConfigField("Boolean", "IS_DEV", "false")
-            // Native Ads - Language screens (TODO: Replace with real ad unit IDs)
-            buildConfigField("String", "ADS_LANG_001", "\"ca-app-pub-xxx/lang001\"")
-            buildConfigField("String", "ADS_LANG_002", "\"ca-app-pub-xxx/lang002\"")
+            // Splash Ads (TODO: Replace with real ad unit IDs)
+            buildConfigField("String", "ADS_SPL_BANNER", "\"ca-app-pub-xxx/splbanner\"")
+            buildConfigField("String", "ADS_SPL_INTER", "\"ca-app-pub-xxx/splinter\"")
             // Native Ads - Onboarding screens (TODO: Replace with real ad unit IDs)
             buildConfigField("String", "ADS_ONB_001", "\"ca-app-pub-xxx/onb001\"")
             buildConfigField("String", "ADS_ONB_002", "\"ca-app-pub-xxx/onb002\"")
-            // Interstitial Ads - PrepareData screen (TODO: Replace with real ad unit IDs)
-            buildConfigField("String", "ADS_INTER_001", "\"ca-app-pub-xxx/inter001\"")
-            // Native Ads - NativeFullScreen (TODO: Replace with real ad unit IDs)
-            buildConfigField("String", "ADS_NATIVE_FULL", "\"ca-app-pub-xxx/nativefull\"")
+            // Native Ads - PrepareData screen (TODO: Replace with real ad unit IDs)
+            buildConfigField("String", "ADS_PREPARE_NATIVE", "\"ca-app-pub-xxx/preparenative\"")
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
 }
 
@@ -93,6 +94,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(platform(libs.firebase.bom))
     implementation(project(":openappsdk"))
     implementation(libs.our.ads)
 }

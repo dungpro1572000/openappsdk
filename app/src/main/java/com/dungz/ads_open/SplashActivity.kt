@@ -10,23 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.dungz.openappsdk.navigation.OpenAppNavigation
-import com.dungz.openappsdk.navigation.OpenAppRoute
-import com.dungz.openappsdk.remotedata.RemoteDataObject
 import com.dungz.openappsdk.ui.theme.AdsOpenTheme
 
-/**
- * SplashActivity - Activity launcher của app
- *
- * Chứa toàn bộ flow khởi động:
- * - SplashScreen (2s loading + check user)
- * - Language1Screen (chọn ngôn ngữ lần đầu)
- * - Language2Screen (xác nhận ngôn ngữ)
- * - OnBoarding1Screen
- * - OnBoarding2Screen
- * - PrepareDataScreen (loading 5s + show interstitial)
- *
- * Sau khi hoàn thành → Navigate đến MainActivity
- */
 class SplashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,10 +23,6 @@ class SplashActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     OpenAppNavigation(
-                        nativeFullScreenRoute = OpenAppRoute.NativeFullScreen(
-                            adId = BuildConfig.ADS_NATIVE_FULL,
-                            showAd = RemoteDataObject.showAdNativeFull
-                        ),
                         onNavigateToMain = {
                             navigateToMainActivity()
                         }
@@ -51,11 +32,6 @@ class SplashActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Navigate đến MainActivity sau khi hoàn thành flow
-     * - Old user: SplashScreen → MainActivity (skip language/onboarding)
-     * - New user: SplashScreen → Language → Onboarding → PrepareData → MainActivity
-     */
     private fun navigateToMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

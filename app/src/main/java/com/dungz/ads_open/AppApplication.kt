@@ -4,44 +4,33 @@ import android.app.Application
 import com.dungz.openappsdk.OpenAppConfig
 import com.dungz.openappsdk.remotedata.RemoteDataObject
 import com.dungz.our_ads.AdsInitializer
-import com.dungz.our_ads.manager.InterstitialAdManager
-import com.dungz.our_ads.manager.NativeAdManager
 
 class AppApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
         AdsInitializer.initialize(this)
-        NativeAdManager.init(this)
-        InterstitialAdManager.init(this)
         RemoteDataObject.init(this)
+
         OpenAppConfig.init {
             splashConfig {
-                delayTime(3000)
+                idBanner(BuildConfig.ADS_SPL_BANNER)
+                idInter(BuildConfig.ADS_SPL_INTER)
+                totalDelay(30000)
             }
-            language1Config {
-                this.adId(BuildConfig.ADS_LANG_001)
-                    .showAd(RemoteDataObject.showAdLang1)
-                    .build()
+            languageConfig {
+                // No special config needed for language screen
             }
-            language2Config {
-                this.adId(BuildConfig.ADS_LANG_002)
-                    .showAd(RemoteDataObject.showAdLang2)
-                    .build()
-            }
-            onboarding1Config {
-                this.adId(BuildConfig.ADS_ONB_001)
-                    .showAd(RemoteDataObject.showAdOnb1)
-                    .build()
-            }
-            onboarding2Config {
-                this.adId(BuildConfig.ADS_ONB_002)
-                    .showAd(RemoteDataObject.showAdOnb2)
-                    .build()
+            onboardingConfig {
+                onb1NativeAdId(BuildConfig.ADS_ONB_001)
+                onb2NativeAdId(BuildConfig.ADS_ONB_002)
+                prepareNativeAdId(BuildConfig.ADS_PREPARE_NATIVE)
+                showOnb1Ad(RemoteDataObject.showAdOnb1)
+                showOnb2Ad(RemoteDataObject.showAdOnb2)
+                showPrepareAd(RemoteDataObject.showAdPrepareNative)
             }
             prepareDataConfig {
-                this.adId(BuildConfig.ADS_INTER_001)
-                    .showAd(RemoteDataObject.showAdInter)
-                    .build()
+                delayTime(5000)
             }
         }
     }

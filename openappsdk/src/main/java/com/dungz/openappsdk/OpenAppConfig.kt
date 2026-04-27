@@ -1,7 +1,5 @@
 package com.dungz.openappsdk
 
-import androidx.annotation.IntegerRes
-import androidx.annotation.RawRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -10,12 +8,13 @@ import androidx.compose.ui.unit.dp
 object OpenAppConfig {
 
     private lateinit var splashConfig: SplashConfig
-    private lateinit var language1Config: Language1Config
-    private lateinit var language2Config: Language2Config
-    private lateinit var onboarding1Config: Onboarding1Config
-    private lateinit var onboarding2Config: Onboarding2Config
+    private lateinit var languageConfig: LanguageConfig
+    private lateinit var onboardingConfig: OnboardingConfig
     private lateinit var prepareDataConfig: PrepareDataConfig
     private lateinit var adPlaceholderConfig: AdPlaceholderConfig
+
+    var navigateToMainScreen: (() -> Unit)? = null
+        private set
 
     private var isInitialized = false
 
@@ -31,30 +30,19 @@ object OpenAppConfig {
         return splashConfig
     }
 
-    fun getLanguage1Config(): Language1Config {
+    fun getLanguageConfig(): LanguageConfig {
         checkInitialized()
-        return language1Config
+        return languageConfig
     }
 
-    fun getLanguage2Config(): Language2Config {
+    fun getOnboardingConfig(): OnboardingConfig {
         checkInitialized()
-        return language2Config
+        return onboardingConfig
     }
 
     fun getPrepareDataConfig(): PrepareDataConfig {
         checkInitialized()
         return prepareDataConfig
-    }
-
-
-    fun getOnboarding1Config(): Onboarding1Config {
-        checkInitialized()
-        return onboarding1Config
-    }
-
-    fun getOnboarding2Config(): Onboarding2Config {
-        checkInitialized()
-        return onboarding2Config
     }
 
     fun getAdPlaceholderConfig(): AdPlaceholderConfig {
@@ -70,61 +58,68 @@ object OpenAppConfig {
 
     class Builder {
         private var splashConfigBuilder: SplashConfig.Builder = SplashConfig.builder()
-        private var language1ConfigBuilder: Language1Config.Builder = Language1Config.builder()
-        private var language2ConfigBuilder: Language2Config.Builder = Language2Config.builder()
+        private var languageConfigBuilder: LanguageConfig.Builder = LanguageConfig.builder()
+        private var onboardingConfigBuilder: OnboardingConfig.Builder = OnboardingConfig.builder()
         private var prepareDataConfigBuilder: PrepareDataConfig.Builder = PrepareDataConfig.builder()
-        private var onboarding1ConfigBuilder: Onboarding1Config.Builder = Onboarding1Config.builder()
-        private var onboarding2ConfigBuilder: Onboarding2Config.Builder = Onboarding2Config.builder()
         private var adPlaceholderConfigBuilder: AdPlaceholderConfig.Builder = AdPlaceholderConfig.builder()
+        private var navigateToMain: (() -> Unit)? = null
 
         fun splashConfig(action: SplashConfig.Builder.() -> Unit) = apply {
             splashConfigBuilder.action()
         }
 
-        fun language1Config(action: Language1Config.Builder.() -> Unit) = apply {
-            language1ConfigBuilder.action()
+        fun languageConfig(action: LanguageConfig.Builder.() -> Unit) = apply {
+            languageConfigBuilder.action()
         }
 
-        fun language2Config(action: Language2Config.Builder.() -> Unit) = apply {
-            language2ConfigBuilder.action()
+        fun onboardingConfig(action: OnboardingConfig.Builder.() -> Unit) = apply {
+            onboardingConfigBuilder.action()
         }
 
         fun prepareDataConfig(action: PrepareDataConfig.Builder.() -> Unit) = apply {
             prepareDataConfigBuilder.action()
         }
 
-        fun onboarding1Config(action: Onboarding1Config.Builder.() -> Unit) = apply {
-            onboarding1ConfigBuilder.action()
-        }
-
-        fun onboarding2Config(action: Onboarding2Config.Builder.() -> Unit) = apply {
-            onboarding2ConfigBuilder.action()
-        }
-
         fun adPlaceholderConfig(action: AdPlaceholderConfig.Builder.() -> Unit) = apply {
             adPlaceholderConfigBuilder.action()
         }
 
+        fun navigateToMainScreen(action: () -> Unit) = apply {
+            navigateToMain = action
+        }
+
         internal fun build() {
             splashConfig = splashConfigBuilder.build()
-            language1Config = language1ConfigBuilder.build()
-            language2Config = language2ConfigBuilder.build()
-            onboarding1Config = onboarding1ConfigBuilder.build()
-            onboarding2Config = onboarding2ConfigBuilder.build()
+            languageConfig = languageConfigBuilder.build()
+            onboardingConfig = onboardingConfigBuilder.build()
             prepareDataConfig = prepareDataConfigBuilder.build()
             adPlaceholderConfig = adPlaceholderConfigBuilder.build()
+            navigateToMainScreen = navigateToMain
         }
     }
+
+    // =========================================================
+    // SplashConfig — banner + interstitial on splash
+    // =========================================================
 
     class SplashConfig private constructor(
-        val delayTime: Int
+        val idBanner: String,
+        val idInter: String,
+        val totalDelay: Int,
+        val content: (@Composable () -> Unit)?
     ) {
         class Builder {
-            private var delayTime: Int = 3000
+            private var idBanner: String = ""
+            private var idInter: String = ""
+            private var totalDelay: Int = 30000
+            private var content: (@Composable () -> Unit)? = null
 
-            fun delayTime(delayTime: Int) = apply { this.delayTime = delayTime }
+            fun idBanner(id: String) = apply { this.idBanner = id }
+            fun idInter(id: String) = apply { this.idInter = id }
+            fun totalDelay(ms: Int) = apply { this.totalDelay = ms }
+            fun content(content: @Composable () -> Unit) = apply { this.content = content }
 
-            fun build() = SplashConfig(delayTime)
+            fun build() = SplashConfig(idBanner, idInter, totalDelay, content)
         }
 
         companion object {
@@ -132,27 +127,25 @@ object OpenAppConfig {
         }
     }
 
-    class Onboarding1Config private constructor(
-        val title: String? = null,
-        val subTitle: String? = null,
-        @field:IntegerRes val img: Int? = null,
-        val adId: String,
-        val showAd: Boolean
+    // =========================================================
+    // LanguageConfig — single language screen
+    // =========================================================
+
+    class LanguageConfig private constructor(
+        val backgroundColor: Color,
+        val textColor: Color,
+        val onLanguageSelected: ((String) -> Unit)?
     ) {
         class Builder {
-            private var title: String = ""
-            private var subTitle: String = ""
-            private var img: Int = 0
-            private var adId: String = ""
-            private var showAd: Boolean = true
+            private var backgroundColor: Color = Color.Transparent
+            private var textColor: Color = Color.Unspecified
+            private var onLanguageSelected: ((String) -> Unit)? = null
 
-            fun adId(adId: String) = apply { this.adId = adId }
-            fun showAd(showAd: Boolean) = apply { this.showAd = showAd }
-            fun title(title: String) = apply { this.title = title }
-            fun subTitle(subTitle: String) = apply { this.subTitle = subTitle }
-            fun img(@RawRes img: Int) = apply { this.img = img }
+            fun backgroundColor(color: Color) = apply { this.backgroundColor = color }
+            fun textColor(color: Color) = apply { this.textColor = color }
+            fun onLanguageSelected(callback: (String) -> Unit) = apply { this.onLanguageSelected = callback }
 
-            fun build() = Onboarding1Config(title, subTitle, img, adId, showAd)
+            fun build() = LanguageConfig(backgroundColor, textColor, onLanguageSelected)
         }
 
         companion object {
@@ -160,27 +153,47 @@ object OpenAppConfig {
         }
     }
 
-    class Onboarding2Config private constructor(
-        val title: String? = null,
-        val subTitle: String? = null,
-        @field:IntegerRes val img: Int? = null,
-        val adId: String,
-        val showAd: Boolean
+    // =========================================================
+    // OnboardingConfig — 3 onboarding screens + native ad IDs
+    // =========================================================
+
+    class OnboardingConfig private constructor(
+        val onboardingContent1: (@Composable () -> Unit)?,
+        val onboardingContent2: (@Composable () -> Unit)?,
+        val onboardingContent3: (@Composable () -> Unit)?,
+        val onb1NativeAdId: String,
+        val onb2NativeAdId: String,
+        val prepareNativeAdId: String,
+        val showOnb1Ad: Boolean,
+        val showOnb2Ad: Boolean,
+        val showPrepareAd: Boolean
     ) {
         class Builder {
-            private var title: String = ""
-            private var subTitle: String = ""
-            private var img: Int = 0
-            private var adId: String = ""
-            private var showAd: Boolean = true
+            private var onboardingContent1: (@Composable () -> Unit)? = null
+            private var onboardingContent2: (@Composable () -> Unit)? = null
+            private var onboardingContent3: (@Composable () -> Unit)? = null
+            private var onb1NativeAdId: String = ""
+            private var onb2NativeAdId: String = ""
+            private var prepareNativeAdId: String = ""
+            private var showOnb1Ad: Boolean = true
+            private var showOnb2Ad: Boolean = true
+            private var showPrepareAd: Boolean = true
 
-            fun adId(adId: String) = apply { this.adId = adId }
-            fun showAd(showAd: Boolean) = apply { this.showAd = showAd }
-            fun title(title: String) = apply { this.title = title }
-            fun subTitle(subTitle: String) = apply { this.subTitle = subTitle }
-            fun img(@RawRes img: Int) = apply { this.img = img }
+            fun onboardingContent1(content: @Composable () -> Unit) = apply { this.onboardingContent1 = content }
+            fun onboardingContent2(content: @Composable () -> Unit) = apply { this.onboardingContent2 = content }
+            fun onboardingContent3(content: @Composable () -> Unit) = apply { this.onboardingContent3 = content }
+            fun onb1NativeAdId(id: String) = apply { this.onb1NativeAdId = id }
+            fun onb2NativeAdId(id: String) = apply { this.onb2NativeAdId = id }
+            fun prepareNativeAdId(id: String) = apply { this.prepareNativeAdId = id }
+            fun showOnb1Ad(show: Boolean) = apply { this.showOnb1Ad = show }
+            fun showOnb2Ad(show: Boolean) = apply { this.showOnb2Ad = show }
+            fun showPrepareAd(show: Boolean) = apply { this.showPrepareAd = show }
 
-            fun build() = Onboarding2Config(title, subTitle, img, adId, showAd)
+            fun build() = OnboardingConfig(
+                onboardingContent1, onboardingContent2, onboardingContent3,
+                onb1NativeAdId, onb2NativeAdId, prepareNativeAdId,
+                showOnb1Ad, showOnb2Ad, showPrepareAd
+            )
         }
 
         companion object {
@@ -188,67 +201,25 @@ object OpenAppConfig {
         }
     }
 
-
-    abstract class BaseLanguageConfig(
-        val adId: String,
-        val showAd: Boolean
-    )
-
-    class Language1Config private constructor(
-        adId: String,
-        showAd: Boolean
-    ) : BaseLanguageConfig(adId, showAd) {
-
-        class Builder {
-            private var adId: String = ""
-            private var showAd: Boolean = true
-
-            fun adId(adId: String) = apply { this.adId = adId }
-            fun showAd(showAd: Boolean) = apply { this.showAd = showAd }
-
-            fun build() = Language1Config(adId, showAd)
-        }
-
-        companion object {
-            fun builder() = Builder()
-        }
-    }
-
-    class Language2Config private constructor(
-        adId: String,
-        showAd: Boolean
-    ) : BaseLanguageConfig(adId, showAd) {
-
-        class Builder {
-            private var adId: String = ""
-            private var showAd: Boolean = true
-
-            fun adId(adId: String) = apply { this.adId = adId }
-            fun showAd(showAd: Boolean) = apply { this.showAd = showAd }
-
-            fun build() = Language2Config(adId, showAd)
-        }
-
-        companion object {
-            fun builder() = Builder()
-        }
-    }
+    // =========================================================
+    // PrepareDataConfig
+    // =========================================================
 
     class PrepareDataConfig private constructor(
         val delayTime: Int,
-        val adId: String,
-        val showAd: Boolean
+        val content: (@Composable () -> Unit)?,
+        val onNextToMainScreen: (() -> Unit)?
     ) {
         class Builder {
             private var delayTime: Int = 5000
-            private var adId: String = ""
-            private var showAd: Boolean = true
+            private var content: (@Composable () -> Unit)? = null
+            private var onNextToMainScreen: (() -> Unit)? = null
 
-            fun delayTime(delayTime: Int) = apply { this.delayTime = delayTime }
-            fun adId(adId: String) = apply { this.adId = adId }
-            fun showAd(showAd: Boolean) = apply { this.showAd = showAd }
+            fun delayTime(ms: Int) = apply { this.delayTime = ms }
+            fun content(content: @Composable () -> Unit) = apply { this.content = content }
+            fun onNextToMainScreen(action: () -> Unit) = apply { this.onNextToMainScreen = action }
 
-            fun build() = PrepareDataConfig(delayTime, adId, showAd)
+            fun build() = PrepareDataConfig(delayTime, content, onNextToMainScreen)
         }
 
         companion object {
@@ -256,16 +227,10 @@ object OpenAppConfig {
         }
     }
 
-    /**
-     * AdPlaceholderConfig - Cấu hình UI placeholder khi ads đang loading
-     *
-     * Cho phép tùy chỉnh:
-     * - Màu nền placeholder
-     * - Màu loading indicator
-     * - Hiệu ứng shimmer
-     * - Bo góc
-     * - Custom placeholder composable
-     */
+    // =========================================================
+    // AdPlaceholderConfig — UI placeholder while ads are loading
+    // =========================================================
+
     class AdPlaceholderConfig private constructor(
         val backgroundColor: Color,
         val shimmerBaseColor: Color,
@@ -297,39 +262,14 @@ object OpenAppConfig {
             fun cornerRadius(radius: Dp) = apply { this.cornerRadius = radius }
             fun useShimmer(use: Boolean) = apply { this.useShimmer = use }
             fun showLoadingIndicator(show: Boolean) = apply { this.showLoadingIndicator = show }
-
-            /**
-             * Custom placeholder cho Native Ad Medium (280dp height)
-             */
-            fun nativeMediumPlaceholder(content: @Composable () -> Unit) = apply {
-                this.nativeMediumPlaceholder = content
-            }
-
-            /**
-             * Custom placeholder cho Native Ad Small (80dp height)
-             */
-            fun nativeSmallPlaceholder(content: @Composable () -> Unit) = apply {
-                this.nativeSmallPlaceholder = content
-            }
-
-            /**
-             * Custom placeholder cho Banner Ad
-             */
-            fun bannerPlaceholder(content: @Composable () -> Unit) = apply {
-                this.bannerPlaceholder = content
-            }
+            fun nativeMediumPlaceholder(content: @Composable () -> Unit) = apply { this.nativeMediumPlaceholder = content }
+            fun nativeSmallPlaceholder(content: @Composable () -> Unit) = apply { this.nativeSmallPlaceholder = content }
+            fun bannerPlaceholder(content: @Composable () -> Unit) = apply { this.bannerPlaceholder = content }
 
             fun build() = AdPlaceholderConfig(
-                backgroundColor,
-                shimmerBaseColor,
-                shimmerHighlightColor,
-                loadingIndicatorColor,
-                cornerRadius,
-                useShimmer,
-                showLoadingIndicator,
-                nativeMediumPlaceholder,
-                nativeSmallPlaceholder,
-                bannerPlaceholder
+                backgroundColor, shimmerBaseColor, shimmerHighlightColor,
+                loadingIndicatorColor, cornerRadius, useShimmer, showLoadingIndicator,
+                nativeMediumPlaceholder, nativeSmallPlaceholder, bannerPlaceholder
             )
         }
 
