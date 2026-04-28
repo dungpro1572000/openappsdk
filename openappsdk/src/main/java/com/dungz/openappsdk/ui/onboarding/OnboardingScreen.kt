@@ -62,6 +62,7 @@ fun OnboardingScreen(
 
     // Preload ads based on current page
     LaunchedEffect(pagerState.currentPage) {
+        OpenAppConfig.disableSwipe.value = true
         when (pagerState.currentPage) {
             0 -> {
                 if (config.showOnb2Ad && config.onb2NativeAdId.isNotEmpty()) {
@@ -89,7 +90,7 @@ fun OnboardingScreen(
     HorizontalPager(
         state = pagerState,
         modifier = Modifier.fillMaxSize(),
-        userScrollEnabled = !isNavigating
+        userScrollEnabled = !isNavigating && !OpenAppConfig.disableSwipe.value
     ) { page ->
         Column(modifier = Modifier.fillMaxSize()) {
             when (page) {
