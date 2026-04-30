@@ -80,7 +80,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.dungpro1572000"
                 artifactId = "openappsdk"
-                version = "1.1.1"
+                version = "1.1.2"
             }
         }
     }
