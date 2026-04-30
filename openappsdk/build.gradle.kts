@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.dungz.openappsdk"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -80,7 +80,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.dungpro1572000"
                 artifactId = "openappsdk"
-                version = "1.1.0"
+                version = "1.1.1"
             }
         }
     }
