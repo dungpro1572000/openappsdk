@@ -2,7 +2,6 @@ package com.dungz.openappsdk.ui.splash
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +30,6 @@ import com.dungz.openappsdk.R
 import com.dungz.openappsdk.data.UserPreferences
 import com.dungz.openappsdk.findActivity
 import com.dungz.openappsdk.remotedata.RemoteDataObject
-import com.dungz.openappsdk.ui.configUI.SplashConfigUI
 import com.dungz.our_ads.controller.InterAdsController
 import com.dungz.our_ads.controller.NativeAdsController
 import com.dungz.our_ads.ui.SmartBannerAd
@@ -154,54 +152,36 @@ fun SplashScreen(
 @Composable
 private fun SplashContent() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (SplashConfigUI.backgroundColor != Color.Transparent)
-                    Modifier.background(SplashConfigUI.backgroundColor)
-                else Modifier
-            ),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (SplashConfigUI.logoCompose != null) {
-                SplashConfigUI.logoCompose!!()
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_app_logo),
-                    contentDescription = "App Logo",
-                    modifier = Modifier.size(120.dp)
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_app_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier.size(120.dp)
+            )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            if (SplashConfigUI.progressCompose != null) {
-                SplashConfigUI.progressCompose!!()
-            } else {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 4.dp
-                )
-            }
+            CircularProgressIndicator(
+                modifier = Modifier.size(48.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 4.dp
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (SplashConfigUI.subtitleCompose != null) {
-                SplashConfigUI.subtitleCompose!!()
-            } else {
-                Text(
-                    text = SplashConfigUI.subtitleText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 32.dp)
-                )
-            }
+            Text(
+                text = "Processing, can contain ads",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            )
         }
     }
 }

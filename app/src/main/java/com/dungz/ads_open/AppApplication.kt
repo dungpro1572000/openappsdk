@@ -28,6 +28,7 @@ class AppApplication : Application() {
                 showOnb1Ad(RemoteDataObject.showAdOnb1)
                 showOnb2Ad(RemoteDataObject.showAdOnb2)
                 showPrepareAd(RemoteDataObject.showAdPrepareNative)
+                layoutNative(R.layout.app_native_ads)
             }
             prepareDataConfig {
                 delayTime(5000)

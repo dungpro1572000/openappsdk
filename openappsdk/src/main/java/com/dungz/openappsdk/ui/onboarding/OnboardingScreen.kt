@@ -113,13 +113,13 @@ fun OnboardingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(0.4f),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.BottomCenter
                         ) {
                             activity?.let { act ->
                                 NativeAdsController.MediumNativeContainerAdView(
                                     activity = WeakReference(act),
                                     adId = config.onb1NativeAdId,
-                                    nativeLayout = com.dungz.our_ads.R.layout.native_ad_medium
+                                    nativeLayout = config.layoutNative ?: com.dungz.our_ads.R.layout.native_ad_medium
                                 )
                             }
                         }
@@ -177,13 +177,13 @@ fun OnboardingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(0.4f),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.BottomCenter
                         ) {
                             activity?.let { act ->
                                 NativeAdsController.MediumNativeContainerAdView(
                                     activity = WeakReference(act),
                                     adId = config.onb2NativeAdId,
-                                    nativeLayout = com.dungz.our_ads.R.layout.native_ad_medium
+                                    nativeLayout = config.layoutNative ?: com.dungz.our_ads.R.layout.native_ad_medium
                                 )
                             }
                         }

@@ -1,5 +1,6 @@
 package com.dungz.openappsdk
 
+import androidx.annotation.LayoutRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
@@ -139,20 +140,17 @@ object OpenAppConfig {
     // =========================================================
 
     class LanguageConfig private constructor(
-        val backgroundColor: Color,
-        val textColor: Color,
+        val content: (@Composable () -> Unit)?,
         val onLanguageSelected: ((String) -> Unit)?
     ) {
         class Builder {
-            private var backgroundColor: Color = Color.Transparent
-            private var textColor: Color = Color.Unspecified
+            private var content: (@Composable () -> Unit)? = null
             private var onLanguageSelected: ((String) -> Unit)? = null
 
-            fun backgroundColor(color: Color) = apply { this.backgroundColor = color }
-            fun textColor(color: Color) = apply { this.textColor = color }
+            fun content(content: @Composable () -> Unit) = apply { this.content = content }
             fun onLanguageSelected(callback: (String) -> Unit) = apply { this.onLanguageSelected = callback }
 
-            fun build() = LanguageConfig(backgroundColor, textColor, onLanguageSelected)
+            fun build() = LanguageConfig(content, onLanguageSelected)
         }
 
         companion object {
@@ -173,7 +171,8 @@ object OpenAppConfig {
         val prepareNativeAdId: String,
         val showOnb1Ad: Boolean,
         val showOnb2Ad: Boolean,
-        val showPrepareAd: Boolean
+        val showPrepareAd: Boolean,
+        @LayoutRes val layoutNative: Int?
     ) {
         class Builder {
             private var onboardingContent1: (@Composable () -> Unit)? = null
@@ -185,6 +184,7 @@ object OpenAppConfig {
             private var showOnb1Ad: Boolean = true
             private var showOnb2Ad: Boolean = true
             private var showPrepareAd: Boolean = true
+            @LayoutRes private var layoutNative: Int? = null
 
             fun onboardingContent1(content: @Composable () -> Unit) = apply { this.onboardingContent1 = content }
             fun onboardingContent2(content: @Composable () -> Unit) = apply { this.onboardingContent2 = content }
@@ -195,11 +195,13 @@ object OpenAppConfig {
             fun showOnb1Ad(show: Boolean) = apply { this.showOnb1Ad = show }
             fun showOnb2Ad(show: Boolean) = apply { this.showOnb2Ad = show }
             fun showPrepareAd(show: Boolean) = apply { this.showPrepareAd = show }
+            fun layoutNative(@LayoutRes layout: Int) = apply { this.layoutNative = layout }
 
             fun build() = OnboardingConfig(
                 onboardingContent1, onboardingContent2, onboardingContent3,
                 onb1NativeAdId, onb2NativeAdId, prepareNativeAdId,
-                showOnb1Ad, showOnb2Ad, showPrepareAd
+                showOnb1Ad, showOnb2Ad, showPrepareAd,
+                layoutNative
             )
         }
 

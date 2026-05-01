@@ -1,7 +1,6 @@
 package com.dungz.openappsdk.ui.prepare
 
 import android.app.Activity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.dungz.openappsdk.OpenAppConfig
 import com.dungz.openappsdk.data.UserPreferences
 import com.dungz.openappsdk.remotedata.RemoteDataObject
-import com.dungz.openappsdk.ui.configUI.PrepareConfigUI
 import com.dungz.our_ads.controller.InterAdsController
 import com.dungz.our_ads.controller.NativeAdsController
 import java.lang.ref.WeakReference
@@ -115,7 +113,7 @@ fun PrepareDataScreen(
                     NativeAdsController.MediumNativeContainerAdView(
                         activity = WeakReference(act),
                         adId = onbConfig.prepareNativeAdId,
-                        nativeLayout = com.dungz.our_ads.R.layout.native_ad_medium
+                        nativeLayout = onbConfig.layoutNative ?: com.dungz.our_ads.R.layout.native_ad_medium
                     )
                 }
             }
@@ -126,51 +124,33 @@ fun PrepareDataScreen(
 @Composable
 private fun PrepareDataContent() {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(
-                if (PrepareConfigUI.backgroundColor != Color.Transparent)
-                    Modifier.background(PrepareConfigUI.backgroundColor)
-                else Modifier
-            ),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (PrepareConfigUI.progressCompose != null) {
-            PrepareConfigUI.progressCompose!!()
-        } else {
-            CircularProgressIndicator(
-                modifier = Modifier.size(64.dp),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 5.dp
-            )
-        }
+        CircularProgressIndicator(
+            modifier = Modifier.size(64.dp),
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 5.dp
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (PrepareConfigUI.titleCompose != null) {
-            PrepareConfigUI.titleCompose!!()
-        } else {
-            Text(
-                text = PrepareConfigUI.titleText,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Gray,
-                textAlign = TextAlign.Center
-            )
-        }
+        Text(
+            text = "Loading data...",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Gray,
+            textAlign = TextAlign.Center
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (PrepareConfigUI.subtitleCompose != null) {
-            PrepareConfigUI.subtitleCompose!!()
-        } else {
-            Text(
-                text = PrepareConfigUI.subtitleText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
-        }
+        Text(
+            text = "Please wait while we prepare everything for you",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center
+        )
     }
 }
 

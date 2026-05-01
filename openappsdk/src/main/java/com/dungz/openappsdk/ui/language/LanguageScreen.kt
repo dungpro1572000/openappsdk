@@ -29,7 +29,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,10 +36,8 @@ import androidx.compose.ui.unit.dp
 import com.dungz.openappsdk.OpenAppConfig
 import com.dungz.openappsdk.data.LanguageManager
 import com.dungz.openappsdk.data.UserPreferences
-import com.dungz.openappsdk.model.Language
 import com.dungz.openappsdk.model.LanguageList
 import com.dungz.openappsdk.ui.components.LanguageItem
-import com.dungz.openappsdk.ui.configUI.LanguageConfigUI
 import com.dungz.our_ads.controller.InterAdsController
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -48,7 +45,6 @@ import java.lang.ref.WeakReference
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageScreen(
-    languageItem: (@Composable (language: Language, isSelected: Boolean) -> Unit)? = null,
     onNavigateToOnBoarding1: () -> Unit
 ) {
     val context = LocalContext.current
@@ -94,36 +90,43 @@ fun LanguageScreen(
         }
     }
 
+    if (config.content != null) {
+        config.content.invoke()
+    } else {
+        LanguageContent(
+            selectedCode = selectedCode,
+            isSaving = isSaving,
+            onSelectLanguage = { selectedCode = it },
+            onSave = onSave
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LanguageContent(
+    selectedCode: String,
+    isSaving: Boolean,
+    onSelectLanguage: (String) -> Unit,
+    onSave: () -> Unit
+) {
     Scaffold(
-        containerColor = if (LanguageConfigUI.backgroundColor != Color.Transparent)
-            LanguageConfigUI.backgroundColor
-        else MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
-                    if (LanguageConfigUI.titleCompose != null) {
-                        LanguageConfigUI.titleCompose!!()
-                    } else {
-                        Text(
-                            text = LanguageConfigUI.titleText,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = "Select Language",
+                        fontWeight = FontWeight.Bold
+                    )
                 },
-                colors = if (LanguageConfigUI.appBarBackgroundColor != Color.Transparent)
-                    TopAppBarDefaults.topAppBarColors(containerColor = LanguageConfigUI.appBarBackgroundColor)
-                else TopAppBarDefaults.topAppBarColors(),
+                colors = TopAppBarDefaults.topAppBarColors(),
                 actions = {
-                    if (LanguageConfigUI.saveButtonCompose != null) {
-                        LanguageConfigUI.saveButtonCompose!!(selectedCode, onSave)
-                    } else {
-                        Button(
-                            onClick = onSave,
-                            enabled = selectedCode.isNotEmpty() && !isSaving,
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Text(LanguageConfigUI.saveButtonText)
-                        }
+                    Button(
+                        onClick = onSave,
+                        enabled = selectedCode.isNotEmpty() && !isSaving,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("Save")
                     }
                 }
             )
@@ -133,49 +136,35 @@ fun LanguageScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 16.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "You can change language anytime",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn(
+                contentPadding = PaddingValues(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (LanguageConfigUI.descriptionCompose != null) {
-                    LanguageConfigUI.descriptionCompose!!()
-                } else {
-                    Text(
-                        text = LanguageConfigUI.descriptionText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                LazyColumn(
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(LanguageList.languages) { language ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .clickable { selectedCode = language.code }
-                        ) {
-                            if (languageItem != null) {
-                                languageItem(language, language.code == selectedCode)
-                            } else {
-                                LanguageItem(
-                                    language = language,
-                                    isSelected = language.code == selectedCode,
-                                    onClick = { selectedCode = language.code },
-                                    showHandPointer = false
-                                )
-                            }
-                        }
+                items(LanguageList.languages) { language ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onSelectLanguage(language.code) }
+                    ) {
+                        LanguageItem(
+                            language = language,
+                            isSelected = language.code == selectedCode,
+                            onClick = { onSelectLanguage(language.code) },
+                            showHandPointer = false
+                        )
                     }
                 }
             }

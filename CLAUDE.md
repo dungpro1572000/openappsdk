@@ -80,7 +80,7 @@ Two separate DataStore instances (not SharedPreferences):
 
 ## UI Customization
 
-Four `ConfigUI` objects (`SplashConfigUI`, `LanguageConfigUI`, `OnboardingConfigUI`, `PrepareConfigUI`) allow per-screen UI customization (colors, composables, text). `OpenAppConfig.AdPlaceholderConfig` controls ad loading state appearance (shimmer colors, corner radius, custom placeholder composables).
+All UI customization is done through `OpenAppConfig` builder — each screen config (`SplashConfig`, `LanguageConfig`, `PrepareDataConfig`) includes both ad/behavior settings and UI overrides (colors, text, composable overrides). `OpenAppConfig.AdPlaceholderConfig` controls ad loading state appearance (shimmer colors, corner radius, custom placeholder composables).
 
 ## Tech Stack
 
