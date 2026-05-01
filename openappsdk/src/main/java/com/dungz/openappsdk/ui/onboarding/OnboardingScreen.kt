@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,9 +61,48 @@ fun OnboardingScreen(
     val scope = rememberCoroutineScope()
     var isNavigating by remember { mutableStateOf(false) }
 
+    // Bind config.onNext() to current page navigation
+    val onNextForPage: (Int) -> Unit = remember(activity) {
+        { currentPage ->
+            when {
+                currentPage < 2 -> {
+                    scope.launch { pagerState.animateScrollToPage(currentPage + 1) }
+                }
+                else -> {
+                    if (!isNavigating) {
+                        isNavigating = true
+                        activity?.let { act ->
+                            scope.launch {
+                                if (InterAdsController.listAds[OpenAppConfig.getSplashConfig().idInter] != null) {
+                                    InterAdsController.showAds(
+                                        activity = WeakReference(act),
+                                        adUnitId = OpenAppConfig.getSplashConfig().idInter,
+                                        onShowSuccess = { onNavigateToPrepareData() },
+                                        onShowFailed = { onNavigateToPrepareData() }
+                                    )
+                                } else {
+                                    onNavigateToPrepareData()
+                                }
+                            }
+                        } ?: run {
+                            onNavigateToPrepareData()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        config.onNextAction = { onNextForPage(pagerState.currentPage) }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { config.onNextAction = null }
+    }
+
     // Preload ads based on current page
     LaunchedEffect(pagerState.currentPage) {
-        OpenAppConfig.disableSwipe.value = true
         when (pagerState.currentPage) {
             0 -> {
                 if (config.showOnb2Ad && config.onb2NativeAdId.isNotEmpty()) {
@@ -90,7 +130,7 @@ fun OnboardingScreen(
     HorizontalPager(
         state = pagerState,
         modifier = Modifier.fillMaxSize(),
-        userScrollEnabled = !isNavigating && !OpenAppConfig.disableSwipe.value
+        userScrollEnabled = false
     ) { page ->
         Column(modifier = Modifier.fillMaxSize()) {
             when (page) {
@@ -103,9 +143,7 @@ fun OnboardingScreen(
                         OnboardingPageContent(
                             config = config,
                             page = 0,
-                            onAction = {
-                                scope.launch { pagerState.animateScrollToPage(1) }
-                            }
+                            onAction = { onNextForPage(0) }
                         )
                     }
                     if (config.showOnb1Ad) {
@@ -131,36 +169,12 @@ fun OnboardingScreen(
                         OnboardingPageContent(
                             config = config,
                             page = 1,
-                            onAction = {
-                                scope.launch { pagerState.animateScrollToPage(2) }
-                            }
+                            onAction = { onNextForPage(1) }
                         )
                     }
                 }
 
                 2 -> {
-                    val onStart: () -> Unit = {
-                        if (!isNavigating) {
-                            isNavigating = true
-                            activity?.let { act ->
-                                scope.launch {
-                                    if (InterAdsController.listAds[OpenAppConfig.getSplashConfig().idInter] != null) {
-                                        InterAdsController.showAds(
-                                            activity = WeakReference(act),
-                                            adUnitId = OpenAppConfig.getSplashConfig().idInter,
-                                            onShowSuccess = { onNavigateToPrepareData() },
-                                            onShowFailed = { onNavigateToPrepareData() }
-                                        )
-                                    } else {
-                                        onNavigateToPrepareData()
-                                    }
-                                }
-                            } ?: run {
-                                onNavigateToPrepareData()
-                            }
-                        }
-                    }
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -169,7 +183,7 @@ fun OnboardingScreen(
                         OnboardingPageContent(
                             config = config,
                             page = 2,
-                            onAction = onStart
+                            onAction = { onNextForPage(2) }
                         )
                     }
                     if (config.showOnb2Ad) {

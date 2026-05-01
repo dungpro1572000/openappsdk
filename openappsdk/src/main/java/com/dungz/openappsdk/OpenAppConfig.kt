@@ -2,7 +2,6 @@ package com.dungz.openappsdk
 
 import androidx.annotation.LayoutRes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -17,12 +16,6 @@ object OpenAppConfig {
 
     var navigateToMainScreen: (() -> Unit)? = null
         private set
-
-    /**
-     * Set to `true` to disable swipe gestures on onboarding screens at runtime.
-     * Can be changed at any time — takes effect immediately.
-     */
-    var disableSwipe = mutableStateOf(false)
 
     private var isInitialized = false
 
@@ -174,6 +167,16 @@ object OpenAppConfig {
         val showPrepareAd: Boolean,
         @LayoutRes val layoutNative: Int?
     ) {
+        internal var onNextAction: (() -> Unit)? = null
+
+        /**
+         * Navigate to the next onboarding page.
+         * If currently on the last page, navigates to PrepareData screen (with interstitial ad if available).
+         */
+        fun onNext() {
+            onNextAction?.invoke()
+        }
+
         class Builder {
             private var onboardingContent1: (@Composable () -> Unit)? = null
             private var onboardingContent2: (@Composable () -> Unit)? = null
